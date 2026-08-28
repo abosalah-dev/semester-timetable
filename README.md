@@ -8,7 +8,7 @@ combinations for clashes.
 This does it for you. Upload the PDF, pick your courses, and browse **every**
 conflict-free timetable those courses allow.
 
-**[→ Open the app](https://semester-timetable.vercel.app)**
+**[→ Open the app](https://my-semester-timetable.vercel.app)**
 
 ![A generated timetable: six courses, colour-coded, each class labelled with its group, room and lecturer](docs/example.png)
 
