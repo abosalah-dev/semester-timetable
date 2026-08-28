@@ -1,0 +1,23 @@
+# The university's schedule PDFs. They are not ours to publish: they name
+# around two hundred real members of staff. Put them in sample-data/ locally
+# and the full test suite runs.
+sample-data/*.pdf
+*.PDF
+*.pdf
+!docs/*.pdf
+
+__pycache__/
+*.pyc
+*.db
+.pytest_cache/
+.venv/
+venv/
+
+node_modules/
+frontend/dist/
+.vite/
+*.local
+
+.vercel/
+.DS_Store
+Thumbs.db

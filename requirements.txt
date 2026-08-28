@@ -1,0 +1,6 @@
+# Vercel installs these for the Python function in api/.
+# Kept in step with backend/requirements.txt, minus the test-only packages.
+fastapi>=0.115
+pdfplumber>=0.11
+pydantic>=2.7
+python-multipart>=0.0.9
