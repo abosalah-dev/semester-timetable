@@ -206,6 +206,7 @@ export default function App() {
     <Shell wide>
       <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
         <Sidebar
+          selectedCount={selected.length}
           onUploadAgain={startOver}
           onShare={createLink}
           canShare={selected.length > 0}
@@ -341,36 +342,38 @@ export default function App() {
 }
 
 /**
- * The filter column.
+ * The course picker and filters.
  *
- * On a phone it collapses behind a button: it is taller than the screen, and
- * leaving it open would push the timetables far below the fold.
+ * On a phone this column is taller than the screen. Someone coming back to a
+ * session they already built wants their timetables first, so it starts
+ * collapsed for them. Someone starting out has nothing else to look at, so it
+ * starts open - and stays open while they pick, rather than folding away the
+ * moment the first course is chosen.
  */
 function Sidebar({
   children,
+  selectedCount,
   onUploadAgain,
   onShare,
   canShare,
   shareUrl,
 }: {
   children: React.ReactNode;
+  selectedCount: number;
   onUploadAgain: () => void;
   onShare: () => void;
   canShare: boolean;
   shareUrl: string | null;
 }) {
-  const [openOnMobile, setOpenOnMobile] = useState(false);
+  // Tracked as "put away" rather than "opened", so choosing a course does not
+  // close the list the student is choosing from.
+  const [collapsed, setCollapsed] = useState(selectedCount > 0);
+  const collapsible = selectedCount > 0;
+  const open = !collapsible || !collapsed;
 
   return (
     <aside className="no-print min-w-0 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto lg:pr-1">
       <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setOpenOnMobile((value) => !value)}
-          className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white lg:hidden"
-        >
-          {openOnMobile ? "Hide filters" : "Courses & filters"}
-        </button>
         <button
           type="button"
           onClick={onUploadAgain}
@@ -397,8 +400,34 @@ function Sidebar({
         </p>
       )}
 
-      <div className={`mt-4 space-y-6 ${openOnMobile ? "" : "hidden lg:block"}`}>
+      {collapsible && (
+        <button
+          type="button"
+          onClick={() => setCollapsed((value) => !value)}
+          className="mt-3 flex w-full items-center justify-between rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white lg:hidden"
+        >
+          <span>
+            {open ? "Hide courses & filters" : "Courses & filters"}
+            <span className="ml-2 font-normal text-slate-300">
+              {selectedCount} chosen
+            </span>
+          </span>
+          <span aria-hidden>{open ? "▲" : "▼"}</span>
+        </button>
+      )}
+
+      <div className={`mt-4 space-y-6 ${open ? "" : "hidden lg:block"}`}>
         {children}
+
+        {collapsible && open && (
+          <button
+            type="button"
+            onClick={() => setCollapsed(true)}
+            className="w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-medium text-white lg:hidden"
+          >
+            Show my timetables ↓
+          </button>
+        )}
       </div>
     </aside>
   );
