@@ -25,6 +25,11 @@ export interface SavedSession {
   courseFilters: Record<string, CourseFilter>;
   global: GlobalFilters;
   favourites: RenderedSchedule[];
+  /**
+   * True when the semester came from the built-in sample rather than an
+   * upload. Optional, so a session saved before the demo existed still loads.
+   */
+  sample?: boolean;
 }
 
 export function save(session: Omit<SavedSession, "version">): void {

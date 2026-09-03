@@ -11,6 +11,7 @@ import type { RenderedSchedule } from "./solver/engine";
 import type { Placement } from "./solver/options";
 import { paletteFor } from "./lib/colors";
 import { bandsOf } from "./lib/time";
+import { loadSample } from "./lib/api";
 import { useSolver } from "./lib/useSolver";
 import {
   forgetShare,
@@ -26,6 +27,7 @@ import { FavouritesBar } from "./components/FavouritesBar";
 import { FilterPanel } from "./components/FilterPanel";
 import { ParseReview } from "./components/ParseReview";
 import { ResultsBrowser } from "./components/ResultsBrowser";
+import { SampleBanner } from "./components/SampleBanner";
 import { ScheduleDetail } from "./components/ScheduleDetail";
 import { UploadStep } from "./components/UploadStep";
 
@@ -63,6 +65,7 @@ export default function App() {
   const [favourites, setFavourites] = useState<RenderedSchedule[]>(
     saved?.favourites ?? [],
   );
+  const [sample, setSample] = useState(saved?.sample ?? false);
   const [comparing, setComparing] = useState(false);
   const [blockMenu, setBlockMenu] = useState<BlockTarget | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -99,8 +102,8 @@ export default function App() {
   // Keep the session for the next refresh.
   useEffect(() => {
     if (!semester) return;
-    storage.save({ semester, courses: selected, courseFilters, global, favourites });
-  }, [semester, selected, courseFilters, global, favourites]);
+    storage.save({ semester, courses: selected, courseFilters, global, favourites, sample });
+  }, [semester, selected, courseFilters, global, favourites, sample]);
 
   const startOver = useCallback(() => {
     storage.clear();
@@ -111,7 +114,26 @@ export default function App() {
     setGlobal(EMPTY_GLOBAL_FILTERS);
     setFavourites([]);
     setOpen(null);
+    setSample(false);
     setStep("upload");
+  }, []);
+
+  /**
+   * Open the demo.
+   *
+   * A few courses are chosen already: an empty results pane would show a
+   * visitor nothing, and the point of the demo is the timetables.
+   */
+  const trySample = useCallback(async () => {
+    const demo = await loadSample();
+    setSemester(demo);
+    setSelected(["CS313x", "CS363", "CS389", "CS381"]);
+    setCourseFilters({});
+    setGlobal(EMPTY_GLOBAL_FILTERS);
+    setFavourites([]);
+    setSample(true);
+    forgetShare();
+    setStep("build");
   }, []);
 
   const createLink = useCallback(async () => {
@@ -172,6 +194,7 @@ export default function App() {
       <Shell>
         <UploadStep
           pendingCourses={pendingLink?.courses ?? null}
+          onTrySample={trySample}
           onParsed={(parsed) => {
             setSemester(parsed);
             // A link's courses are already in state; only a fresh upload with
@@ -182,6 +205,7 @@ export default function App() {
               setGlobal(EMPTY_GLOBAL_FILTERS);
             }
             setFavourites([]);
+            setSample(false);
             forgetShare();
             setStep("review");
           }}
@@ -239,6 +263,8 @@ export default function App() {
         </Sidebar>
 
         <main className="min-w-0">
+          {sample && <SampleBanner onUpload={startOver} />}
+
           <FavouritesBar
             favourites={favourites}
             onOpen={(schedule) => setOpen({ schedule, key: queryKey })}

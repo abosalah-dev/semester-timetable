@@ -2,6 +2,8 @@ import type { Semester } from "../types";
 
 export class ApiError extends Error {}
 
+// Sharing needs no endpoint: a link carries its selection in the URL.
+
 export async function parseFiles(files: File[]): Promise<Semester> {
   const body = new FormData();
   for (const file of files) body.append("files", file);
@@ -13,20 +15,16 @@ export async function parseFiles(files: File[]): Promise<Semester> {
   return response.json();
 }
 
-export async function createShare(payload: unknown): Promise<string> {
-  const response = await fetch("/api/share", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ payload }),
-  });
-  if (!response.ok) throw new ApiError(await readError(response));
-  const { id } = await response.json();
-  return id;
-}
-
-export async function readShare<T>(id: string): Promise<T> {
-  const response = await fetch(`/api/share/${encodeURIComponent(id)}`);
-  if (!response.ok) throw new ApiError(await readError(response));
+/**
+ * The built-in semester, for trying the site without a schedule to hand.
+ *
+ * It is a real faculty's courses, times and rooms with every lecturer
+ * replaced by a pseudonym, served as already-parsed JSON - so the demo starts
+ * instantly instead of spending several seconds reading a PDF.
+ */
+export async function loadSample(): Promise<Semester> {
+  const response = await fetch("/sample-semester.json");
+  if (!response.ok) throw new ApiError("the sample schedule could not be loaded");
   return response.json();
 }
 

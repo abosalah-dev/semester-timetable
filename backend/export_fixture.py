@@ -1,4 +1,4 @@
-"""Regenerate the solver's test fixture from the sample PDFs.
+"""Regenerate the anonymised semester used by the tests and the demo.
 
 The frontend tests run the solver against a real semester, because timings and
 group structures that real timetables produce are what the search has to cope
@@ -20,6 +20,9 @@ from app.parsing import merge_semesters, parse_pdf
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLES = ROOT / "sample-data"
 FIXTURE = ROOT / "frontend" / "src" / "solver" / "__fixtures__" / "semester.json"
+#: The same anonymised semester, served to anyone who wants to try the site
+#: without a schedule of their own.
+DEMO = ROOT / "frontend" / "public" / "sample-semester.json"
 
 
 def anonymise(semester: Semester) -> int:
@@ -48,12 +51,17 @@ def main() -> None:
     semester = merge_semesters([parse_pdf(path) for path in files])
     replaced = anonymise(semester)
 
-    FIXTURE.parent.mkdir(parents=True, exist_ok=True)
-    FIXTURE.write_text(semester.model_dump_json(), encoding="utf-8")
+    payload = semester.model_dump_json()
+    for target in (FIXTURE, DEMO):
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(payload, encoding="utf-8")
+
     print(
-        f"{FIXTURE.relative_to(ROOT)}: {len(semester.courses)} courses, "
-        f"{len(semester.warnings)} warnings, {replaced} lecturers anonymised"
+        f"{len(semester.courses)} courses, {len(semester.warnings)} warnings, "
+        f"{replaced} lecturers anonymised"
     )
+    for target in (FIXTURE, DEMO):
+        print(f"  wrote {target.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

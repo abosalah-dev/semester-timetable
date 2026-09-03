@@ -8,7 +8,8 @@ combinations for clashes.
 This does it for you. Upload the PDF, pick your courses, and browse **every**
 conflict-free timetable those courses allow.
 
-**[→ Open the app](https://my-semester-timetable.vercel.app)**
+**[→ Open the app](https://my-semester-timetable.vercel.app)** — or try it
+straight away with the built-in sample schedule, no file needed.
 
 ![A generated timetable: six courses, colour-coded, each class labelled with its group, room and lecturer](docs/example.png)
 
@@ -174,10 +175,11 @@ parser tests skip with a clear message and the rest of the suite runs
 normally. To run everything, put the schedule PDFs in `sample-data/` as
 `course-schedule.pdf` and `english-schedule.pdf`.
 
-The solver's fixture *is* committed, because the search has to be tested
-against real timings and group structures — with every lecturer replaced by a
-pseudonym. `backend/export_fixture.py` regenerates it and does the
-anonymisation.
+The anonymised semester *is* committed, in two places: the solver's fixture,
+because the search has to be tested against real timings and group
+structures, and `frontend/public/sample-semester.json`, which is what the
+site's "try it with a sample schedule" button loads. Both come from
+`backend/export_fixture.py`, which does the anonymisation.
 
 ## Next semester
 

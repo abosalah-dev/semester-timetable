@@ -13,10 +13,12 @@ import type { Semester } from "../types";
 export function UploadStep({
   pendingCourses,
   onParsed,
+  onTrySample,
 }: {
   /** Courses a shared link is waiting to apply, if this page came from one. */
   pendingCourses: string[] | null;
   onParsed: (semester: Semester) => void;
+  onTrySample: () => void;
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
@@ -141,6 +143,24 @@ export function UploadStep({
       >
         {busy ? "Reading the schedule…" : "Read the schedule"}
       </button>
+
+      <div className="mt-8 border-t border-slate-200 pt-6 text-center">
+        <p className="text-sm text-slate-600">
+          Do not have the file to hand? Have a look around with a sample one.
+        </p>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onTrySample}
+          className="mt-3 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-800 ring-1 ring-slate-300 transition hover:ring-slate-500 disabled:opacity-50"
+        >
+          Try it with a sample schedule
+        </button>
+        <p className="mt-2 text-xs text-slate-400">
+          Real courses, times and rooms from a past semester. The lecturer
+          names are made up.
+        </p>
+      </div>
     </section>
   );
 }
